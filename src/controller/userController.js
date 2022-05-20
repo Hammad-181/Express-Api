@@ -12,9 +12,9 @@ const userController = () => {
         res.status(newUser.code).json(newUser);
     }
 
-    const getUser = (req, res) => {
-        const userInfo = userService.getuser(req.params.id);
-        res.status(200).json(userInfo);
+    const loginUser = (req, res) => {
+        const userInfo = userService.loginUser(req.body.email, req.body.password);
+        res.status(userInfo.code).json(userInfo);
     }
 
     const updateLastname = (req, res) => {
@@ -26,13 +26,18 @@ const userController = () => {
         const removedUser = userService.deleteUser(req.params.id);
         res.status(removedUser.code).json(removedUser);
     }
+    const deleteAllUser = (req,res) => {
+        removeAllUsers = userService.deleteAllUser();
+        res.status(removeAllUsers.code).json(removeAllUsers);
+    }
 
     return {
         allUser,
         addUser,
-        getUser,
+        loginUser,
         deleteUser,
-        updateLastname
+        updateLastname,
+        deleteAllUser
     }
 }
 

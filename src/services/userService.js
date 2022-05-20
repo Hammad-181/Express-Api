@@ -31,8 +31,30 @@ const userService = () => {
         
     }
 
-    const getuser = (id) => {
-        return users.filter(user => user.id == id);
+    const loginUser = (email, password) => {
+        let checkEmail = email.includes('@')
+        if(checkEmail) {
+            let user = users.filter(user => (user.email == email && user.password === password));
+        
+            if(user.length > 0) {
+                return {
+                    code: 200,
+                    message : `hey ${user[0].firstName} You have logged in successfully`
+                }
+            }
+            else {
+                return {
+                    code: 400,
+                    message : 'Please enter correct email and password'
+                }
+            }
+        }
+        else {
+            return {
+                code : 400,
+                message : "Email must contain '@' example : abcd@email.com "
+            }
+        }
     }
 
     const updateLastname = (id ,lastname) => {
@@ -70,12 +92,31 @@ const userService = () => {
         }
     }
 
+    const deleteAllUser = () => {
+      users = [];
+    
+    if(users.length == 0){
+        return {
+            message : 'All users deleted successfully',
+            code : 200
+        }    
+    }
+    else {
+        return {
+            message : 'Unable to delete user',
+            code : 400
+        }
+    }
+      
+    }
+        
     return {
         getAllUser,
         addUser,
-        getuser,
+        loginUser,
         deleteUser,
-        updateLastname
+        updateLastname,
+        deleteAllUser,
     }
 }
 
