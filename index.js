@@ -16,5 +16,5 @@ app.use(cors());
 app.use('/user', router);
 
 app.listen(port || 3000, () => {
-
+    console.log(`Server up and running on port: ${port}`)
 })

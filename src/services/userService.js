@@ -1,59 +1,68 @@
 //import { v4 as uuidv4 } from 'uuid';
 const uuidv4 = require('uuid');
+const ResponseObject = require('../utills/response');
 let users = [];
+const User = require('../model/user');
+const user = require('../model/user');
+const Constants = require('../utills/constants');
+const Auth = require('../auth/auth');
 
 const userService = () => {
     
     const getAllUser = () => {
-        return users;
+        try{
+            return User.findAll().then(res => {
+                if(res) {
+                    return ResponseObject.response(res, Constants.FOUND)
+                }
+                else{
+                    return ResponseObject.response(res, Constants.USER_NOT_FOUND, 404)
+                }
+            })
+        }
+        catch(err) {
+            return ResponseObject.response(err, Constants.INTERNAL_SERVER_ERROR, 500)
+        }
     }
 
     const addUser = (payload) => {
-        let usersCurrentLength = users.length;
-
-        let index =  users.findIndex(user => user.email == payload.email) 
-
-        if(index < 0)
-            users.push({...payload, id:uuidv4.v4()})
-
-        if(usersCurrentLength < users.length) {
-            return {
-                message : 'User Added Successfully',
-                code : 200
-            }
+        try{
+            payload.id = uuidv4.v4();
+            return Auth.encryptPassword(payload.password).then(res => {
+                payload.password = res;
+                return User.create(payload).then((result) => {
+                    if(result) {
+                        return ResponseObject.response(result, Constants.USER_ADDED)
+                    }
+                }).catch(err => {
+                    return ResponseObject.response(err, Constants.USER_NOT_ADDED, 500)
+                })
+            }).catch(ResponseObject.response({}, Constants.INTERNAL_SERVER_ERROR, 500));
         }
-        else {
-            return {
-                message : 'unable to add user',
-                code : 400
-            }
+        catch(err){
+            return ResponseObject.response(err, Constants.INTERNAL_SERVER_ERROR, 500)
         }
-        
     }
 
     const loginUser = (email, password) => {
-        let checkEmail = email.includes('@')
-        if(checkEmail) {
-            let user = users.filter(user => (user.email == email && user.password === password));
-        
-            if(user.length > 0) {
-                return {
-                    code: 200,
-                    message : `hey ${user[0].firstName} You have logged in successfully`
+        try {
+            return User.findOne({
+                where: {
+                    email: email,
+                    password: password
                 }
-            }
-            else {
-                return {
-                    code: 400,
-                    message : 'Please enter correct email and password'
+            }).then(res => {
+                if(res)
+                    return ResponseObject.response(res, Constants.LOGIN_SUCCESSFULL);
+                else {
+                    return ResponseObject.response(res, Constants.USER_NOT_FOUND, 404);
                 }
-            }
+            }).catch(err => {
+                return ResponseObject.response(err, Constants.INTERNAL_SERVER_ERROR, 500)
+            })
         }
-        else {
-            return {
-                code : 400,
-                message : "Email must contain '@' example : abcd@email.com "
-            }
+        catch(err) {
+            return ResponseObject.response(err, Constants.INTERNAL_SERVER_ERROR, 500)
         }
     }
 

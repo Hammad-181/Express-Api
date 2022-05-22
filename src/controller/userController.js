@@ -2,18 +2,18 @@ const userService = require('../services/userService.js');
 
 const userController = () => {
 
-    const allUser = (req, res) => {
-        const totalUser = userService.getAllUser();
+    const allUser = async (req, res) => {
+        const totalUser = await userService.getAllUser();
         res.status(200).json(totalUser);
     }
 
-    const addUser = (req, res) => {
-        const newUser = userService.addUser(req.body);
+    const addUser = async (req, res) => {
+        const newUser = await userService.addUser(req.body);
         res.status(newUser.code).json(newUser);
     }
 
-    const loginUser = (req, res) => {
-        const userInfo = userService.loginUser(req.body.email, req.body.password);
+    const loginUser = async (req, res) => {
+        const userInfo = await userService.loginUser(req.body.email, req.body.password);
         res.status(userInfo.code).json(userInfo);
     }
 
